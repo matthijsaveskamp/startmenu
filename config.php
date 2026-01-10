@@ -1,7 +1,7 @@
 <?php
 // Basisconfiguratie — pas aan naar wens
 // Standaardwachtwoord: 'veranderdit' (verander dit zo snel mogelijk)
-$ADMIN_PASS_PLAIN = 'superstar'; // eenvoudig voor lokaal gebruik
+$ADMIN_PASS_PLAIN = 'veranderdit'; // eenvoudig voor lokaal gebruik
 // Je kunt in plaats daarvan een vaste hash gebruiken en $ADMIN_PASS_PLAIN op null zetten
 $ADMIN_PASS_HASH = password_hash($ADMIN_PASS_PLAIN, PASSWORD_DEFAULT);
 
