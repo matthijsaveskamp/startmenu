@@ -8,7 +8,7 @@ Korte instructies:
    php -S localhost:8000
 3. Open in je browser:
    http://localhost:8000/
-   http://localhost:8000/admin.php (wachtwoord: 'veranderdit')
+   http://localhost:8000/admin.php (wachtwoord: 'superstar')
 
 Veiligheid:
 - Pas het admin-wachtwoord aan.
