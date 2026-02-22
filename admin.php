@@ -1,6 +1,6 @@
 <?php
-session_start();
 require 'config.php';
+session_start();
 
 /** Helpers: links storage */
 function load_links()
@@ -225,7 +225,16 @@ function validate_ddmmyyyy($s){
 function sanitize_date($s)
 {
     return trim($s);
-} 
+}
+
+function is_safe_url($url)
+{
+    if (empty($url)) return true;
+    $allowed_protocols = ['http', 'https', 'mailto', 'tel'];
+    $scheme = parse_url($url, PHP_URL_SCHEME);
+    if ($scheme === false || $scheme === null) return true;
+    return in_array(strtolower($scheme), $allowed_protocols);
+}
 
 // Upload-hulpfuncties
 function upload_error_message($code){
@@ -261,8 +270,8 @@ function is_valid_image_file($tmpPath){
 }
 
 function log_upload_error($msg){
-    global $UPLOAD_DIR;
-    $logFile = rtrim($UPLOAD_DIR, '/') . '/upload-debug.log';
+    global $DATA_DIR;
+    $logFile = rtrim($DATA_DIR, '/') . '/upload-debug.log';
     $ip = $_SERVER['REMOTE_ADDR'] ?? 'cli';
     $line = date('Y-m-d H:i:s') . " | $ip | $msg\n";
     @file_put_contents($logFile, $line, FILE_APPEND | LOCK_EX);
@@ -302,6 +311,10 @@ if (isset($_POST['add']) && !empty($_SESSION['logged'])) {
         $url = trim($_POST['url'] ?? '');
         $desc = trim($_POST['desc'] ?? '');
         $icon = trim($_POST['icon_url'] ?? '');
+
+        if (!is_safe_url($url) || !is_safe_url($icon)) {
+            $err = 'Ongeldige URL gedetecteerd (onveilig protocol)';
+        }
 
         // Verwerk upload met server-side afbeeldingscontroles
         if ($GLOBALS['ALLOW_UPLOADS'] && isset($_FILES['icon_file'])) {
@@ -462,6 +475,10 @@ if (isset($_POST['save']) && !empty($_SESSION['logged'])) {
             $icon = trim($_POST['icon_url'] ?? '');
             $oldIcon = $links[$i]['icon'] ?? '';
 
+            if (!is_safe_url($url) || !is_safe_url($icon)) {
+                $err = 'Ongeldige URL gedetecteerd (onveilig protocol)';
+            }
+
             // Optie om icoon te verwijderen
             if (isset($_POST['remove_icon']) && $_POST['remove_icon'] == '1') {
                 if (!empty($oldIcon) && strpos($oldIcon, 'assets/uploads/') === 0) { @unlink(__DIR__ . '/' . $oldIcon); }
@@ -541,6 +558,10 @@ if (isset($_POST['avatar_save']) && !empty($_SESSION['logged'])) {
         $settings = load_settings();
         $old = $settings['admin_avatar'] ?? '';
         $avatar = trim($_POST['avatar_url'] ?? '');
+
+        if (!is_safe_url($avatar)) {
+            $err = 'Ongeldige Avatar URL gedetecteerd (onveilig protocol)';
+        }
 
         // Verwijder huidige avatar
         if (isset($_POST['remove_avatar']) && $_POST['remove_avatar'] == '1') {
